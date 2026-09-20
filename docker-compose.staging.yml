@@ -1,0 +1,66 @@
+version: "3.8"
+
+# Ddeploy — staging stack
+# Exposes only the API (5002) and web (5174) to the host; Postgres is internal-only.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ddeploy-staging-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-ddeploy}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ddeploy}
+      POSTGRES_DB: ${DB_NAME:-ddeploy_db}
+    volumes:
+      - ddeploy_pgdata:/var/lib/postgresql/data
+      - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ddeploy} -d ${DB_NAME:-ddeploy_db}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build:
+      context: ./backend
+    container_name: ddeploy-staging-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 5001
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-ddeploy_db}
+      DB_USER: ${DB_USER:-ddeploy}
+      DB_PASSWORD: ${DB_PASSWORD:-ddeploy}
+      JWT_SECRET: ${JWT_SECRET:-staging_change_me_please}
+      JWT_EXPIRES_IN: 7d
+      RUNNER_ENABLED: "false"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5174,http://your-staging-domain.com:5174}
+      TEAMS_WEBHOOK_URL: ${TEAMS_WEBHOOK_URL}
+    ports:
+      - "5002:5001"
+    volumes:
+      - ./backend/public/artifacts:/app/public/artifacts
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://your-staging-domain.com:5002}
+    container_name: ddeploy-staging-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "5174:80"
+
+volumes:
+  ddeploy_pgdata:

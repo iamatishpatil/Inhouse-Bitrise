@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ddeploy-internal-db
+    environment:
+      POSTGRES_USER: ddeploy
+      POSTGRES_PASSWORD: ddeploy
+      POSTGRES_DB: ddeploy_db
+    ports:
+      - "55432:5432"
+    volumes:
+      - ddeploy_pgdata:/var/lib/postgresql/data
+      - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ddeploy -d ddeploy_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    container_name: ddeploy-internal-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 5001
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ddeploy_db
+      DB_USER: ddeploy
+      DB_PASSWORD: ddeploy
+      JWT_SECRET: dev_local_jwt_secret_change_me
+      JWT_EXPIRES_IN: 7d
+      RUNNER_ENABLED: "false"
+      TEAMS_WEBHOOK_URL: ${TEAMS_WEBHOOK_URL}
+    ports:
+      - "5002:5001"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/server.js:/app/server.js
+      - ./backend/public/artifacts:/app/public/artifacts
+    command: npx nodemon server.js
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ddeploy-internal-frontend
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: http://localhost:5002
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  ddeploy_pgdata:
