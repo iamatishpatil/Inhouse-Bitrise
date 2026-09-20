@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 // Define tools for Gemini
 const buildTool = {
   name: "trigger_build",
-  description: "Trigger a build for a project in Ddeploy.",
+  description: "Trigger a build for a project in Inhouse-Bitrise.",
   parameters: {
     type: "object",
     properties: {
@@ -31,7 +31,7 @@ const buildTool = {
 
 const workflowTool = {
   name: "create_workflow",
-  description: "Create a new CI/CD workflow for a project in Ddeploy.",
+  description: "Create a new CI/CD workflow for a project in Inhouse-Bitrise.",
   parameters: {
     type: "object",
     properties: {
@@ -307,7 +307,7 @@ async function handleChatMessage(message, history = []) {
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
     tools: tools,
-    systemInstruction: "You are Ddeploy AI, a helpful CI/CD assistant. You can trigger builds and create workflows for users. When asked to create a workflow, try to generate a reasonable YML config for it."
+    systemInstruction: "You are Inhouse-Bitrise AI, a helpful CI/CD assistant. You can trigger builds and create workflows for users. When asked to create a workflow, try to generate a reasonable YML config for it."
   });
 
   // Convert generic history to Gemini expected format

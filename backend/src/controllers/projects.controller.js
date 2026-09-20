@@ -72,7 +72,7 @@ const createProject = async (req, res, next) => {
         headers: {
           'Authorization': github_pat ? `token ${github_pat}` : undefined,
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Ddeploy-App'
+          'User-Agent': 'Inhouse-Bitrise-App'
         }
       });
 
@@ -574,7 +574,7 @@ const getBranches = async (req, res, next) => {
 
     const headers = {
       Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'ddeploy',
+      'User-Agent': 'inhouse-bitrise',
     };
     if (github_pat) headers.Authorization = `token ${github_pat}`;
 

@@ -59,7 +59,7 @@ export default function Login() {
           </h1>
 
           <p className="mt-1.5 text-sm text-text-muted">
-            Sign in to continue to Ddeploy.
+            Sign in to continue to Inhouse-Bitrise.
           </p>
         </div>
 

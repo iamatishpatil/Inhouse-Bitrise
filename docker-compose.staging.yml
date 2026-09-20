@@ -1,24 +1,24 @@
 version: "3.8"
 
-# Ddeploy — staging stack
+# Inhouse-Bitrise — staging stack
 # Exposes only the API (5002) and web (5174) to the host; Postgres is internal-only.
 
 services:
   db:
     image: postgres:16-alpine
-    container_name: ddeploy-staging-db
+    container_name: inhouse-bitrise-staging-db
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${DB_USER:-ddeploy}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-ddeploy}
-      POSTGRES_DB: ${DB_NAME:-ddeploy_db}
+      POSTGRES_USER: ${DB_USER:-inhouse-bitrise}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-inhouse-bitrise}
+      POSTGRES_DB: ${DB_NAME:-inhouse_bitrise_db}
     volumes:
-      - ddeploy_pgdata:/var/lib/postgresql/data
+      - inhouse_bitrise_pgdata:/var/lib/postgresql/data
       - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ddeploy} -d ${DB_NAME:-ddeploy_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-inhouse-bitrise} -d ${DB_NAME:-inhouse_bitrise_db}"]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -26,7 +26,7 @@ services:
   api:
     build:
       context: ./backend
-    container_name: ddeploy-staging-api
+    container_name: inhouse-bitrise-staging-api
     restart: unless-stopped
     depends_on:
       db:
@@ -36,9 +36,9 @@ services:
       NODE_ENV: production
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-ddeploy_db}
-      DB_USER: ${DB_USER:-ddeploy}
-      DB_PASSWORD: ${DB_PASSWORD:-ddeploy}
+      DB_NAME: ${DB_NAME:-inhouse_bitrise_db}
+      DB_USER: ${DB_USER:-inhouse-bitrise}
+      DB_PASSWORD: ${DB_PASSWORD:-inhouse-bitrise}
       JWT_SECRET: ${JWT_SECRET:-staging_change_me_please}
       JWT_EXPIRES_IN: 7d
       RUNNER_ENABLED: "false"
@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         VITE_API_URL: ${VITE_API_URL:-http://your-staging-domain.com:5002}
-    container_name: ddeploy-staging-web
+    container_name: inhouse-bitrise-staging-web
     restart: unless-stopped
     depends_on:
       - api
@@ -63,4 +63,4 @@ services:
       - "5174:80"
 
 volumes:
-  ddeploy_pgdata:
+  inhouse_bitrise_pgdata:

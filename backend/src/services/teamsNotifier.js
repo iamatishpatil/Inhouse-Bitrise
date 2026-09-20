@@ -42,7 +42,7 @@ const sendBuildCard = async (buildInfo) => {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Adaptive Card styled to match Ddeploy APK Bot card:
+  // Adaptive Card styled to match Inhouse-Bitrise APK Bot card:
   //   🚀 New APK Build Ready
   //   Project: ttf
   //   Build Number: 342

@@ -68,9 +68,9 @@ NODE_ENV=development
 # PostgreSQL (matches docker-compose.yml defaults)
 DB_HOST=localhost
 DB_PORT=55432
-DB_NAME=ddeploy_db
-DB_USER=ddeploy
-DB_PASSWORD=ddeploy
+DB_NAME=inhouse_bitrise_db
+DB_USER=inhouse-bitrise
+DB_PASSWORD=inhouse-bitrise
 
 # JWT Auth — change this to a long random string
 JWT_SECRET=change_me_to_a_long_random_secret
@@ -89,9 +89,9 @@ AWS_REGION=
 S3_BUCKET=
 
 # Optional: Cache and workspace tuning
-# DDEPLOY_CACHE_DIR=/Users/yourname/.ddeploy_cache
-# DDEPLOY_KEEP_WORKSPACES=5
-# DDEPLOY_KEEP_ARTIFACTS=30
+# INHOUSE_BITRISE_CACHE_DIR=/Users/yourname/.inhouse-bitrise_cache
+# INHOUSE_BITRISE_KEEP_WORKSPACES=5
+# INHOUSE_BITRISE_KEEP_ARTIFACTS=30
 ```
 
 ### Frontend `.env`
@@ -123,9 +123,9 @@ docker compose up --build
 This will start 3 services:
 | Service | Container | Port |
 |---------|-----------|------|
-| PostgreSQL DB | `ddeploy-internal-db` | `55432` (external) |
-| Node.js API | `ddeploy-internal-api` | `5002` |
-| React Frontend | `ddeploy-internal-frontend` | `5174` |
+| PostgreSQL DB | `inhouse-bitrise-internal-db` | `55432` (external) |
+| Node.js API | `inhouse-bitrise-internal-api` | `5002` |
+| React Frontend | `inhouse-bitrise-internal-frontend` | `5174` |
 
 Once you see:
 ```
@@ -266,10 +266,10 @@ Inhouse-Bitrise/
 | Start full stack | `docker compose up --build` |
 | Stop all containers | `docker compose down` |
 | Reset DB (wipe all data) | `docker compose down -v` |
-| View API logs | `docker logs -f ddeploy-internal-api` |
-| View DB logs | `docker logs -f ddeploy-internal-db` |
-| Shell into API container | `docker exec -it ddeploy-internal-api sh` |
-| Connect to Postgres directly | `psql -h localhost -p 55432 -U ddeploy -d ddeploy_db` |
+| View API logs | `docker logs -f inhouse-bitrise-internal-api` |
+| View DB logs | `docker logs -f inhouse-bitrise-internal-db` |
+| Shell into API container | `docker exec -it inhouse-bitrise-internal-api sh` |
+| Connect to Postgres directly | `psql -h localhost -p 55432 -U inhouse-bitrise -d inhouse_bitrise_db` |
 
 ---
 
@@ -289,7 +289,7 @@ docker compose up --build
 
 ### Frontend shows blank page / API errors
 - Check `VITE_API_URL` in `frontend/.env` — it must match the running API port.
-- Check the API container logs: `docker logs -f ddeploy-internal-api`
+- Check the API container logs: `docker logs -f inhouse-bitrise-internal-api`
 
 ### JWT errors / Unauthorized responses
 - Make sure `JWT_SECRET` in `backend/.env` is set and non-empty.
@@ -300,7 +300,7 @@ docker compose up --build
 ## 🔐 Security Reminders for Production
 
 - Change `JWT_SECRET` to a long, random string (minimum 32 characters).
-- Change `DB_PASSWORD` from the default `ddeploy`.
+- Change `DB_PASSWORD` from the default `inhouse-bitrise`.
 - Never commit `.env` files — they are already in `.gitignore`.
 - Set `NODE_ENV=production` in staging/production deployments.
 - Set `CORS_ORIGINS` to only allow your specific frontend domain.

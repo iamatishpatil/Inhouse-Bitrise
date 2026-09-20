@@ -77,7 +77,7 @@ app.use('/artifacts', express.static(path.join(__dirname, '../public/artifacts')
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: '🟢 Ddeploy API is running',
+    message: '🟢 Inhouse-Bitrise API is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
   });

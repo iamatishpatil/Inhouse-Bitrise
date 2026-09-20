@@ -172,7 +172,7 @@ export default function WorkflowArchitect() {
 
   const commit = () => {
     if (!workflowId) return toast.error('Select a workflow to save');
-    if (isYaml) return toast.info('YAML workflow', 'Edit raw ddeploy.yml from the workflow form');
+    if (isYaml) return toast.info('YAML workflow', 'Edit raw inhouse-bitrise.yml from the workflow form');
     setBusy(true);
     api.put(`/api/workflows/${workflowId}`, {
       name: wfMeta.name, platform: wfMeta.platform, steps: nodesToSteps(steps), yml_config: null,

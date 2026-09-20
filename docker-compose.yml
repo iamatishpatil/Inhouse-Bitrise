@@ -1,18 +1,18 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: ddeploy-internal-db
+    container_name: inhouse-bitrise-internal-db
     environment:
-      POSTGRES_USER: ddeploy
-      POSTGRES_PASSWORD: ddeploy
-      POSTGRES_DB: ddeploy_db
+      POSTGRES_USER: inhouse-bitrise
+      POSTGRES_PASSWORD: inhouse-bitrise
+      POSTGRES_DB: inhouse_bitrise_db
     ports:
       - "55432:5432"
     volumes:
-      - ddeploy_pgdata:/var/lib/postgresql/data
+      - inhouse_bitrise_pgdata:/var/lib/postgresql/data
       - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ddeploy -d ddeploy_db"]
+      test: ["CMD-SHELL", "pg_isready -U inhouse-bitrise -d inhouse_bitrise_db"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -20,7 +20,7 @@ services:
   api:
     build:
       context: ./backend
-    container_name: ddeploy-internal-api
+    container_name: inhouse-bitrise-internal-api
     depends_on:
       db:
         condition: service_healthy
@@ -29,9 +29,9 @@ services:
       NODE_ENV: development
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: ddeploy_db
-      DB_USER: ddeploy
-      DB_PASSWORD: ddeploy
+      DB_NAME: inhouse_bitrise_db
+      DB_USER: inhouse-bitrise
+      DB_PASSWORD: inhouse-bitrise
       JWT_SECRET: dev_local_jwt_secret_change_me
       JWT_EXPIRES_IN: 7d
       RUNNER_ENABLED: "false"
@@ -47,7 +47,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    container_name: ddeploy-internal-frontend
+    container_name: inhouse-bitrise-internal-frontend
     depends_on:
       - api
     environment:
@@ -61,4 +61,4 @@ services:
     command: npm run dev -- --host 0.0.0.0
 
 volumes:
-  ddeploy_pgdata:
+  inhouse_bitrise_pgdata:

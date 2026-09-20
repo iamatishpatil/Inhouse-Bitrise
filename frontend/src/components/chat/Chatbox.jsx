@@ -7,7 +7,7 @@ import api from '../../api/client';
 export function Chatbox() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('ddeploy_chat_history');
+    const saved = localStorage.getItem('inhouse_bitrise_chat_history');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -16,7 +16,7 @@ export function Chatbox() {
       }
     }
     return [
-      { role: 'ai', text: 'Hello! I am Ddeploy AI. I can help you trigger builds or create workflows. How can I help you today?' }
+      { role: 'ai', text: 'Hello! I am Inhouse-Bitrise AI. I can help you trigger builds or create workflows. How can I help you today?' }
     ];
   });
   const [inputValue, setInputValue] = useState('');
@@ -34,13 +34,13 @@ export function Chatbox() {
   }, [messages, isOpen]);
 
   useEffect(() => {
-    localStorage.setItem('ddeploy_chat_history', JSON.stringify(messages));
+    localStorage.setItem('inhouse_bitrise_chat_history', JSON.stringify(messages));
   }, [messages]);
 
   const clearChat = () => {
     if (window.confirm("Are you sure you want to clear the chat history?")) {
       setMessages([
-        { role: 'ai', text: 'Hello! I am Ddeploy AI. I can help you trigger builds or create workflows. How can I help you today?' }
+        { role: 'ai', text: 'Hello! I am Inhouse-Bitrise AI. I can help you trigger builds or create workflows. How can I help you today?' }
       ]);
     }
   };
@@ -108,7 +108,7 @@ export function Chatbox() {
             <div className="p-4 border-b border-slate-800 bg-slate-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MessageSquare size={20} />
-                <h3 className="font-semibold text-lg">Ddeploy AI</h3>
+                <h3 className="font-semibold text-lg">Inhouse-Bitrise AI</h3>
               </div>
               <div className="flex gap-1">
                 <button 

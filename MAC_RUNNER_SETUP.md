@@ -221,8 +221,8 @@ PORT=5099
 # Cloud PostgreSQL — same DB as office Mac Mini
 DB_HOST=<YOUR_CLOUD_SERVER_IP>
 DB_PORT=5432
-DB_NAME=ddeploy_db
-DB_USER=ddeploy
+DB_NAME=inhouse_bitrise_db
+DB_USER=inhouse-bitrise
 DB_PASSWORD=<YOUR_DB_PASSWORD>
 
 # Auth
@@ -236,9 +236,9 @@ MASTER_URL=http://<YOUR_CLOUD_SERVER_IP>:5002
 GEMINI_API_KEY=<YOUR_GEMINI_KEY>
 
 # Disk hygiene
-DDEPLOY_REUSE_WORKSPACE=true
-DDEPLOY_KEEP_WORKSPACES=5
-DDEPLOY_KEEP_ARTIFACTS=30
+INHOUSE_BITRISE_REUSE_WORKSPACE=true
+INHOUSE_BITRISE_KEEP_WORKSPACES=5
+INHOUSE_BITRISE_KEEP_ARTIFACTS=30
 RUNNER_CAPACITY=1
 ```
 
@@ -262,7 +262,7 @@ cat > ~/Desktop/inhouse-bitrise-laptop/ecosystem.config.js << 'EOF'
 module.exports = {
   apps: [
     {
-      name: 'ddeploy-runner',
+      name: 'inhouse-bitrise-runner',
       script: 'server.js',
       cwd: '/Users/YOUR_MAC_USERNAME/Desktop/inhouse-bitrise-laptop/backend',
       instances: 1,
@@ -273,8 +273,8 @@ module.exports = {
         NODE_ENV: 'production',
       },
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
-      error_file: '/Users/YOUR_MAC_USERNAME/.pm2/logs/ddeploy-runner-error.log',
-      out_file: '/Users/YOUR_MAC_USERNAME/.pm2/logs/ddeploy-runner-out.log',
+      error_file: '/Users/YOUR_MAC_USERNAME/.pm2/logs/inhouse-bitrise-runner-error.log',
+      out_file: '/Users/YOUR_MAC_USERNAME/.pm2/logs/inhouse-bitrise-runner-out.log',
     },
   ],
 };
@@ -288,8 +288,8 @@ Test the config parses correctly:
 ```bash
 cd ~/Desktop/inhouse-bitrise-laptop
 pm2 start ecosystem.config.js --no-daemon 2>&1 | head -5
-pm2 stop ddeploy-runner
-pm2 delete ddeploy-runner
+pm2 stop inhouse-bitrise-runner
+pm2 delete inhouse-bitrise-runner
 ```
 
 ---
@@ -351,7 +351,7 @@ source ~/.zshrc
 Connect:
 
 ```bash
-psql -h <YOUR_CLOUD_SERVER_IP> -p 5432 -U ddeploy -d ddeploy_db -c "SELECT COUNT(*) FROM builds;"
+psql -h <YOUR_CLOUD_SERVER_IP> -p 5432 -U inhouse-bitrise -d inhouse_bitrise_db -c "SELECT COUNT(*) FROM builds;"
 # Enter your DB password when prompted
 # Expected: returns a number (total builds in system)
 ```
@@ -389,7 +389,7 @@ xcodebuild -version     # Xcode 15.x
 
 On **office Mac Mini** — stop temporarily:
 ```bash
-pm2 stop ddeploy-runner
+pm2 stop inhouse-bitrise-runner
 ```
 
 On **Mac Laptop** — start in foreground to see output:
@@ -401,7 +401,7 @@ node server.js
 Expected output within 10 seconds:
 ```
 ✅ PostgreSQL connected successfully
-🚀 Ddeploy API is running on port 5099
+🚀 Inhouse-Bitrise API is running on port 5099
 👷 Runner [MacBook-Pro.local-XXXXX] starting in PUSH mode (LISTEN/NOTIFY)
 🧹 Cleaned up 0 stuck 'running' builds.
 📡 Subscribed to new_build / new_deploy / new_testflight / abort_build
@@ -413,7 +413,7 @@ Stop: `Ctrl+C`
 
 On **office Mac Mini** — restart:
 ```bash
-pm2 start ddeploy-runner
+pm2 start inhouse-bitrise-runner
 ```
 
 ---
@@ -434,7 +434,7 @@ npm install        # Only needed if package.json changed
 pm2 start ecosystem.config.js
 
 # 4. Watch logs to confirm it started
-pm2 logs ddeploy-runner --lines 30
+pm2 logs inhouse-bitrise-runner --lines 30
 ```
 
 **Expected output:**
@@ -455,18 +455,18 @@ Open `http://<YOUR_CLOUD_SERVER_IP>:5174` → verify builds are running again. �
 
 ```bash
 # Watch logs to confirm no build is mid-run
-pm2 logs ddeploy-runner -f
+pm2 logs inhouse-bitrise-runner -f
 # Wait until you see "🎉 BUILD SUCCESSFUL!" or "❌ Build failed"
 
 # Then stop and clean up laptop runner
-pm2 stop ddeploy-runner
-pm2 delete ddeploy-runner
+pm2 stop inhouse-bitrise-runner
+pm2 delete inhouse-bitrise-runner
 ```
 
 On **office Mac Mini** — restart:
 ```bash
-pm2 start ddeploy-runner
-pm2 logs ddeploy-runner --lines 20    # Confirm Subscribed line appears
+pm2 start inhouse-bitrise-runner
+pm2 logs inhouse-bitrise-runner --lines 20    # Confirm Subscribed line appears
 ```
 
 ---
@@ -476,11 +476,11 @@ pm2 logs ddeploy-runner --lines 20    # Confirm Subscribed line appears
 | Task | Command (Mac Laptop) |
 |------|---------------------|
 | **Start runner** | `cd ~/Desktop/inhouse-bitrise-laptop/backend && pm2 start ecosystem.config.js` |
-| **Stop runner** | `pm2 stop ddeploy-runner && pm2 delete ddeploy-runner` |
-| **Watch live logs** | `pm2 logs ddeploy-runner -f` |
+| **Stop runner** | `pm2 stop inhouse-bitrise-runner && pm2 delete inhouse-bitrise-runner` |
+| **Watch live logs** | `pm2 logs inhouse-bitrise-runner -f` |
 | **Check status** | `pm2 list` |
 | **Pull latest code** | `cd ~/Desktop/inhouse-bitrise-laptop/backend && git pull origin main && npm install` |
-| **Restart runner** | `pm2 restart ddeploy-runner` |
+| **Restart runner** | `pm2 restart inhouse-bitrise-runner` |
 | **Check DB reachable** | `nc -zv <CLOUD_IP> 5432` |
 
 ---
@@ -490,15 +490,15 @@ pm2 logs ddeploy-runner --lines 20    # Confirm Subscribed line appears
 | Command | What it does |
 |---------|-------------|
 | `pm2 start ecosystem.config.js` | Start app using the ecosystem config file |
-| `pm2 start server.js --name ddeploy-runner` | Start app with manual name (no config file) |
+| `pm2 start server.js --name inhouse-bitrise-runner` | Start app with manual name (no config file) |
 | `pm2 list` | Show all PM2-managed processes and their status |
-| `pm2 logs ddeploy-runner` | Show last 15 lines of logs |
-| `pm2 logs ddeploy-runner -f` | Follow live log stream |
-| `pm2 logs ddeploy-runner --lines 50` | Show last 50 log lines |
-| `pm2 stop ddeploy-runner` | Stop the process (keeps it in PM2 registry) |
-| `pm2 delete ddeploy-runner` | Stop + remove from PM2 registry completely |
-| `pm2 restart ddeploy-runner` | Stop + start again (used after config/code changes) |
-| `pm2 reload ddeploy-runner` | Zero-downtime reload (Node.js cluster only) |
+| `pm2 logs inhouse-bitrise-runner` | Show last 15 lines of logs |
+| `pm2 logs inhouse-bitrise-runner -f` | Follow live log stream |
+| `pm2 logs inhouse-bitrise-runner --lines 50` | Show last 50 log lines |
+| `pm2 stop inhouse-bitrise-runner` | Stop the process (keeps it in PM2 registry) |
+| `pm2 delete inhouse-bitrise-runner` | Stop + remove from PM2 registry completely |
+| `pm2 restart inhouse-bitrise-runner` | Stop + start again (used after config/code changes) |
+| `pm2 reload inhouse-bitrise-runner` | Zero-downtime reload (Node.js cluster only) |
 | `pm2 save` | Save current process list (persists across reboots) |
 | `pm2 startup` | Generate OS-level startup script for auto-start |
 | `pm2 kill` | Stop ALL PM2 processes and shut down PM2 daemon |
@@ -530,5 +530,5 @@ pm2 logs ddeploy-runner --lines 20    # Confirm Subscribed line appears
 | `flutter: command not found` | Run `source ~/.zshrc` |
 | `pm2: command not found` | Run `npm install -g pm2` |
 | iOS build fails with cert error | Fastlane Match PAT may have expired — generate new PAT and update project secrets |
-| Build stuck at `running` | Run `pm2 restart ddeploy-runner` |
+| Build stuck at `running` | Run `pm2 restart inhouse-bitrise-runner` |
 | Logs show DB connection error | Check `DB_HOST`, `DB_PASSWORD` in `.env` file match the cloud server values |

@@ -35,10 +35,10 @@ const RESET_COLOR = '\x1b[0m';
 // `flutter pub get`, `pod install`, and Gradle dependency resolution near-instant
 // on a warm cache. The runner can now process multiple builds (activeJobs);
 // PUB_CACHE/CP_HOME_DIR are safe to share (versioned, read-mostly), but
-// GRADLE_USER_HOME is scoped per project below. Override the base with DDEPLOY_CACHE_DIR.
+// GRADLE_USER_HOME is scoped per project below. Override the base with INHOUSE_BITRISE_CACHE_DIR.
 // ─────────────────────────────────────────────────────────────────────────────
 const getCacheEnv = (projectId) => {
-  const base = process.env.DDEPLOY_CACHE_DIR || path.join(process.env.HOME || '/tmp', '.ddeploy_cache');
+  const base = process.env.INHOUSE_BITRISE_CACHE_DIR || path.join(process.env.HOME || '/tmp', '.inhouse-bitrise_cache');
   // GRADLE_USER_HOME is scoped per project (not shared like PUB_CACHE/CP_HOME_DIR):
   // Gradle's build-cache/transforms-cache hold mutable, concurrently-written compiled
   // outputs, so one corrupted or SIGKILL-interrupted entry under a shared dir can break
@@ -60,14 +60,14 @@ const RUNNER_ID = `${require('os').hostname()}-${process.pid}`;
 // ─────────────────────────────────────────────────────────────────────────────
 // Disk hygiene — bound the unbounded growth of build workspaces and artifacts.
 // The runner reuses a per-project workspace by default, but when
-// DDEPLOY_REUSE_WORKSPACE=false each build clones into its own <buildId> folder,
+// INHOUSE_BITRISE_REUSE_WORKSPACE=false each build clones into its own <buildId> folder,
 // and previously NOTHING ever removed them — every build left behind a multi-GB
 // checkout (Pods/DerivedData/build), slowly filling the host disk. Harvested
 // APKs/IPAs in public/artifacts/ accumulated forever too. We keep the N most
 // recent of each (by mtime) and delete the rest. Per-project reuse workspaces
 // (project_*) are left untouched — they are bounded (one per project) and are
-// the warm incremental-build caches. Tune with DDEPLOY_KEEP_WORKSPACES /
-// DDEPLOY_KEEP_ARTIFACTS.
+// the warm incremental-build caches. Tune with INHOUSE_BITRISE_KEEP_WORKSPACES /
+// INHOUSE_BITRISE_KEEP_ARTIFACTS.
 // ─────────────────────────────────────────────────────────────────────────────
 const pruneDir = (dir, keep, { onlyDirs = false, label = '' } = {}) => {
   try {
@@ -102,9 +102,9 @@ const pruneDir = (dir, keep, { onlyDirs = false, label = '' } = {}) => {
 };
 
 const pruneDisk = () => {
-  const keepWs = parseInt(process.env.DDEPLOY_KEEP_WORKSPACES, 10);
-  const keepArt = parseInt(process.env.DDEPLOY_KEEP_ARTIFACTS, 10);
-  const workspaceBase = path.join(process.env.HOME || '/tmp', '.ddeploy_workspaces');
+  const keepWs = parseInt(process.env.INHOUSE_BITRISE_KEEP_WORKSPACES, 10);
+  const keepArt = parseInt(process.env.INHOUSE_BITRISE_KEEP_ARTIFACTS, 10);
+  const workspaceBase = path.join(process.env.HOME || '/tmp', '.inhouse-bitrise_workspaces');
   const artifactDir = path.join(__dirname, '../../public/artifacts');
   pruneDir(workspaceBase, Number.isFinite(keepWs) ? keepWs : 5, { onlyDirs: true, label: 'workspace' });
   pruneDir(artifactDir, Number.isFinite(keepArt) ? keepArt : 30, { label: 'artifact' });
@@ -433,8 +433,8 @@ const runBuild = async (buildId) => {
     // Workspace is keyed by PROJECT and WORKFLOW so that different environments
     // (like "Android Staging" vs "iOS Prod") get their own isolated, persistent
     // workspace folders and never collide when running concurrently.
-    const WORKSPACE_BASE = path.join(process.env.HOME || '/tmp', '.ddeploy_workspaces');
-    const REUSE_WORKSPACE = process.env.DDEPLOY_REUSE_WORKSPACE !== 'false'; // default ON
+    const WORKSPACE_BASE = path.join(process.env.HOME || '/tmp', '.inhouse-bitrise_workspaces');
+    const REUSE_WORKSPACE = process.env.INHOUSE_BITRISE_REUSE_WORKSPACE !== 'false'; // default ON
     const workspaceDir = REUSE_WORKSPACE
       ? path.join(WORKSPACE_BASE, `project_${build.project_id}_wf_${build.workflow_id || 'default'}`)
       : path.join(WORKSPACE_BASE, buildId);
@@ -552,7 +552,7 @@ const runBuild = async (buildId) => {
           const versionMatch = content.match(/^version:\s*(.+)$/m);
           if (versionMatch) {
             let version = versionMatch[1].trim();
-            // Format version to look like Ddeploy (e.g., v1.0.4)
+            // Format version to look like Inhouse-Bitrise (e.g., v1.0.4)
             const cleanVersion = version.split('+')[0];
             const formattedVersion = `v${cleanVersion}`;
 
@@ -676,8 +676,8 @@ const runBuild = async (buildId) => {
                 ...secretsEnv,
                 GIT_TERMINAL_PROMPT: '0',
                 PATH: `${workspaceDir}:${process.env.PATH}`,
-                DDEPLOY_BUILD_NUMBER: build.id.slice(0, 4),
-                DDEPLOY_SOURCE_DIR: workspaceDir,
+                INHOUSE_BITRISE_BUILD_NUMBER: build.id.slice(0, 4),
+                INHOUSE_BITRISE_SOURCE_DIR: workspaceDir,
                 INHOUSE_BITRISE_SOURCE_DIR: workspaceDir,
                 BUILD_NUMBER: build.build_number || build.id.slice(0, 4)
               },
@@ -1048,8 +1048,8 @@ const deployToTestFlight = async (buildId) => {
 
     // 3. Workspace Directory — must match the path the build used (per-project
     // when workspace reuse is enabled, otherwise per-build).
-    const WORKSPACE_BASE = path.join(process.env.HOME || '/tmp', '.ddeploy_workspaces');
-    const REUSE_WORKSPACE = process.env.DDEPLOY_REUSE_WORKSPACE !== 'false';
+    const WORKSPACE_BASE = path.join(process.env.HOME || '/tmp', '.inhouse-bitrise_workspaces');
+    const REUSE_WORKSPACE = process.env.INHOUSE_BITRISE_REUSE_WORKSPACE !== 'false';
     const workspaceDir = REUSE_WORKSPACE
       ? path.join(WORKSPACE_BASE, `project_${build.project_id}`)
       : path.join(WORKSPACE_BASE, buildId);

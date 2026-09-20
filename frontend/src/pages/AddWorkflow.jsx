@@ -136,7 +136,7 @@ export default function AddWorkflow() {
     <AppShell>
       <PageHeader
         title={isEdit ? 'Edit workflow' : 'New workflow'}
-        subtitle="Define build steps or paste your ddeploy.yml"
+        subtitle="Define build steps or paste your inhouse-bitrise.yml"
         back={`/projects/${projectId}`}
       />
 
@@ -317,7 +317,7 @@ export default function AddWorkflow() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                hint="Must match the workflow name in your ddeploy.yml"
+                hint="Must match the workflow name in your inhouse-bitrise.yml"
               />
 
               <div className="flex flex-col gap-2">
@@ -348,7 +348,7 @@ export default function AddWorkflow() {
             onChange={setMode}
             items={[
               { value: 'steps', label: 'Manual steps' },
-              { value: 'yaml', label: 'ddeploy.yml' },
+              { value: 'yaml', label: 'inhouse-bitrise.yml' },
             ]}
           />
 
@@ -364,7 +364,7 @@ export default function AddWorkflow() {
                 <Card>
                   <CardBody>
                     <Textarea
-                      label="ddeploy.yml"
+                      label="inhouse-bitrise.yml"
                       placeholder="format_version: '11'\nworkflows:\n  staging-android:\n    steps: …"
                       value={ymlConfig}
                       onChange={(e) => setYmlConfig(e.target.value)}

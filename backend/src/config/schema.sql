@@ -1,8 +1,8 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- schema.sql
--- Ddeploy — PostgreSQL Database Schema
+-- Inhouse-Bitrise — PostgreSQL Database Schema
 -- Run this file once to create all required tables.
--- Command: psql -U postgres -d ddeploy_db -f schema.sql
+-- Command: psql -U postgres -d inhouse_bitrise_db -f schema.sql
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Enable UUID generation (PostgreSQL extension)
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS workflows (
   name        VARCHAR(100) NOT NULL,
   platform    VARCHAR(50)  DEFAULT 'android',
   steps       JSONB        NOT NULL,
-  yml_config  TEXT,         -- Added to store raw Ddeploy YAML
+  yml_config  TEXT,         -- Added to store raw Inhouse-Bitrise YAML
   created_at  TIMESTAMP    DEFAULT NOW()
 );
 
